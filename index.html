@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0416">
+<meta name="description" content="Killua Panel - Login">
+<title>KILLUA — LOGIN</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="login-box">
+  <div class="logo">⚡</div>
+  <div class="title">KILLUA PANEL</div>
+  <div class="subtitle">LOGIN UNTUK MASUK</div>
+
+  <div class="form-group">
+    <label>USERNAME</label>
+    <input type="text" id="username" placeholder="Masukkan username" autocomplete="off">
+  </div>
+
+  <div class="form-group">
+    <label>PASSWORD</label>
+    <input type="password" id="password" placeholder="Masukkan password" autocomplete="off">
+  </div>
+
+  <button class="btn-login" id="btnLogin" onclick="doLogin()">MASUK</button>
+
+  <div class="msg" id="msg"></div>
+
+  <a class="register-link" href="/createakun">← Belum punya akun? Daftar</a>
+
+  <div class="footer">
+    © DEVELOPED BY <b>LEXZY DEV</b>
+  </div>
+</div>
+
+<script>
+  /* ============================================
+     AKUN BUILT-IN (ADMIN) — HARDCODED
+     ============================================ */
+  const BUILTIN_USERS = [
+    { username: "Lexzy Dev", password: "lexzy123",  role: "admin", redirect: "/dashboard" },
+    { username: "Lexzy",     password: "lexzyreal", role: "admin", redirect: "/dashboard" },
+    { username: "Killua",    password: "killua123", role: "user",  redirect: "/home" }
+  ];
+
+  /* ============================================
+     AMBIL USER DARI LOCALSTORAGE
+     (user yang daftar sendiri via createakun.html)
+     ============================================ */
+  function getRegisteredUsers() {
+    try {
+      return JSON.parse(localStorage.getItem('killua_registered_users') || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /* ============================================
+     GABUNGIN SEMUA USER (BUILT-IN + REGISTERED)
+     ============================================ */
+  function getAllUsers() {
+    const registered = getRegisteredUsers().map(u => ({
+      username: u.username,
+      password: u.password,
+      role: u.role || 'user',
+      redirect: u.role === 'admin' ? '/dashboard' : '/home'
+    }));
+    return [...BUILTIN_USERS, ...registered];
+  }
+
+  /* ============================================
+     LOGIN
+     ============================================ */
+  function doLogin() {
+    const u   = document.getElementById('username').value.trim();
+    const p   = document.getElementById('password').value;
+    const msg = document.getElementById('msg');
+    const btn = document.getElementById('btnLogin');
+
+    // Validasi kosong
+    if (!u || !p) {
+      msg.className = 'msg err';
+      msg.textContent = 'Username & password wajib diisi!';
+      return;
+    }
+
+    // Loading state
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.textContent = 'MEMPROSES';
+
+    // Delay dikit biar keliatan loading
+    setTimeout(() => {
+      const users = getAllUsers();
+      const found = users.find(x => x.username === u && x.password === p);
+
+      if (found) {
+        // Sukses
+        msg.className = 'msg ok';
+        msg.textContent = 'Login berhasil! Mengalihkan...';
+
+        // Simpan session
+        localStorage.setItem('killua_user', JSON.stringify({
+          username: found.username,
+          role: found.role,
+          loginAt: Date.now()
+        }));
+
+        // Redirect
+        setTimeout(() => {
+          window.location.href = found.redirect;
+        }, 800);
+
+      } else {
+        // Gagal
+        msg.className = 'msg err';
+        msg.textContent = 'Username atau password salah!';
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.textContent = 'MASUK';
+      }
+    }, 500);
+  }
+
+  /* ============================================
+     ENTER UNTUK LOGIN
+     ============================================ */
+  document.getElementById('username').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('password').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  /* ============================================
+     AUTO-REDIRECT KALAU UDAH LOGIN
+     ============================================ */
+  (function() {
+    const existing = JSON.parse(localStorage.getItem('killua_user') || 'null');
+    if (existing) {
+      if (existing.role === 'admin') {
+        window.location.replace('/dashboard');
+      } else {
+        window.location.replace('/home');
+      }
+    }
+  })();
+</script>
+
+</body>
+</html>

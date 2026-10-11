@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KILLUA — LOGIN</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0416; color: #fff;
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 22px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #2a0d4d, #1a0633, #12042a);
+    border: 1px solid rgba(179,102,255,0.3);
+    box-shadow: 0 12px 40px rgba(139,61,255,0.35);
+    text-align: center;
+  }
+
+  .logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #b366ff, #4a0d8c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    box-shadow: 0 0 28px rgba(139,61,255,0.9);
+    border: 3px solid rgba(255,255,255,0.15);
+  }
+
+  .title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #b366ff, #ff2fa0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #8a7aa8;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+    text-align: left;
+  }
+  .form-group label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: #8a7aa8;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .form-group input {
+    width: 100%;
+    background: #050505;
+    border: 1px solid rgba(139,61,255,0.4);
+    color: #fff;
+    padding: 13px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    border-radius: 10px;
+    outline: none;
+    transition: 0.2s;
+  }
+  .form-group input:focus {
+    border-color: #b366ff;
+    box-shadow: 0 0 14px rgba(139,61,255,0.5);
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    background: linear-gradient(90deg, #8b3dff, #ff2fa0);
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(139,61,255,0.5);
+    transition: 0.2s;
+  }
+  .btn-login:active { transform: scale(0.97); }
+
+  .msg {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-align: center;
+    display: none;
+  }
+  .msg.err {
+    display: block;
+    background: rgba(255,51,68,0.15);
+    border: 1px solid rgba(255,51,68,0.5);
+    color: #ff5566;
+  }
+  .msg.ok {
+    display: block;
+    background: rgba(77,255,136,0.15);
+    border: 1px solid rgba(77,255,136,0.5);
+    color: #4dff88;
+  }
+
+  .footer {
+    margin-top: 20px;
+    font-size: 10px;
+    color: #5a4a70;
+    letter-spacing: 1px;
+    line-height: 1.6;
+  }
+  .footer b { color: #b366ff; }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <div class="logo">⚡</div>
+  <div class="title">KILLUA PANEL</div>
+  <div class="subtitle">LOGIN UNTUK MASUK</div>
+
+  <div class="form-group">
+    <label>USERNAME</label>
+    <input type="text" id="username" placeholder="Masukkan username" autocomplete="off">
+  </div>
+
+  <div class="form-group">
+    <label>PASSWORD</label>
+    <input type="password" id="password" placeholder="Masukkan password" autocomplete="off">
+  </div>
+
+  <button class="btn-login" onclick="doLogin()">MASUK</button>
+
+  <div class="msg" id="msg"></div>
+
+  <div class="footer">
+    © DEVELOPED BY <b>LEXZY DEV</b>
+  </div>
+</div>
+
+<script>
+  /* ===== DAFTAR AKUN (HARDCODED) ===== */
+  /* Admin bisa ubah di sini. Format: { username, password, role } */
+  const USERS = [
+    { username: "Lexzy Dev", password: "lexzy123", role: "admin",   redirect: "index.html#admin" },
+    { username: "Lexzy",     password: "lexzyreal", role: "admin",  redirect: "index.html#admin" },
+    { username: "Killua",    password: "killua123", role: "user",   redirect: "index.html#home" }
+  ];
+
+  function doLogin() {
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value;
+    const msg = document.getElementById('msg');
+
+    if (!u || !p) {
+      msg.className = 'msg err';
+      msg.textContent = 'Username & password wajib diisi!';
+      return;
+    }
+
+    const found = USERS.find(x => x.username === u && x.password === p);
+
+    if (found) {
+      msg.className = 'msg ok';
+      msg.textContent = 'Login berhasil! Mengalihkan...';
+
+      // Simpan session di localStorage
+      localStorage.setItem('killua_user', JSON.stringify({
+        username: found.username,
+        role: found.role,
+        loginAt: Date.now()
+      }));
+
+      setTimeout(() => {
+        window.location.href = found.redirect;
+      }, 800);
+    } else {
+      msg.className = 'msg err';
+      msg.textContent = 'Username atau password salah!';
+    }
+  }
+
+  // Tekan Enter buat login
+  document.getElementById('password').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('username').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doLogin();
+  });
+</script>
+
+</body>
+</html>
